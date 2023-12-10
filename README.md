@@ -1,7 +1,6 @@
 # Numerics-and-Flow-Simulation-with-Julia
 
-This is part of attempt of exercises from coursework Numerics and Flow Simulation offered at the University Duisburg-Essen, 
-  by no means sample solutions.
+This is part of attempt of exercises from coursework Numerics and Flow Simulation offered at the University Duisburg-Essen taught in SS2023.
 
 The ideas of this 'project':
 - familiarize with computaional fluid dynamics, numerics/mathematics
