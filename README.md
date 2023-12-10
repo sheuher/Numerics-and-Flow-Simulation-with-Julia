@@ -7,6 +7,6 @@ The ideas of this 'project':
 - familiarize with programming language Julia
 
 The goals of this 'project':
-- tackle basic ideas and mathematical methods of CFD
+- tackle basic ideas/intuition, mathematical methods of CFD
 - break down CFD equations/problem into smaller digestable problems, write own solution in code
 - develop a simple 2D CFD Explicit solver
