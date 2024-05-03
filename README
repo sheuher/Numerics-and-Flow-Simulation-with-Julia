@@ -1,0 +1,21 @@
+"""
+Write a program to transport a passive
+scalar in 2D.
+▪ Prescribe a momentum field and a
+(constant density)
+▪ Compute the velocity at the faces
+(mom2Vel)
+▪ Compute the convective and diffusive
+fluxes (calcFluxConCDS, calcFluxDif )
+at the faces
+▪ Sum the computed fluxes up at the cell
+center
+▪ Advance the solution in time by adding
+the flux at the cell center to the
+previous solution
+▪ Repeat the last three steps until the
+desired numer of time steps is reached
+(as for your 1D-code in lecture 3)
+▪ Testcase: a jet
+▪ Play with the program
+"""
