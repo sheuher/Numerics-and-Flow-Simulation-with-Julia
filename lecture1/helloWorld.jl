@@ -1,0 +1,3 @@
+#!julia
+
+println("Hello World!")
