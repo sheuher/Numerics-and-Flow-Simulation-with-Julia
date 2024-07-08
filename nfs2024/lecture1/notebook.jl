@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.38
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -36,8 +36,8 @@ begin
 		4 * n_circle /n 
 	end
 
-	ns = [1:250:100000]
-	res = piMonteCarlo.(ns...)
+	ns = 1:250:100000
+	res = piMonteCarlo.(ns)
 end
 
 # ╔═╡ d9bfbe80-0e1d-46ce-8bdc-eb55d3af9ca1
@@ -194,14 +194,14 @@ end
 # ╔═╡ Cell order:
 # ╠═679afa60-fcc9-11ee-2f33-ddb09de46901
 # ╠═5965d931-de1b-416b-8419-9aba97b51868
-# ╟─46600b97-b0d8-4981-a0cf-36c5989e0ba0
-# ╟─d9bfbe80-0e1d-46ce-8bdc-eb55d3af9ca1
+# ╠═46600b97-b0d8-4981-a0cf-36c5989e0ba0
+# ╠═d9bfbe80-0e1d-46ce-8bdc-eb55d3af9ca1
 # ╠═05ae6fed-3edf-4cce-aef2-51e341ea297f
 # ╟─69fc64b5-0c5f-4edc-a3bd-9a9a3f4eb3b0
 # ╠═3cbd92e1-9039-4c5d-ba7b-47b62c4f7b60
 # ╠═be497665-e424-45e7-9687-d16f10699be5
 # ╠═f41b62c7-3248-4a2a-a6be-6d8dca267ca8
-# ╟─114b2f8d-0a22-474a-a31a-490f190af726
+# ╠═114b2f8d-0a22-474a-a31a-490f190af726
 # ╠═f7a4179f-68f3-4ab8-82d2-47902a8b41d1
 # ╠═0d38312d-49d4-4fc6-a38e-3c71379ad6cf
 # ╠═380c415f-afe4-4d9b-a711-402fc8eddc6e
