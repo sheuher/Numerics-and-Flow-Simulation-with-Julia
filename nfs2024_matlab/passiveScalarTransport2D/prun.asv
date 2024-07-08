@@ -1,0 +1,15 @@
+% # run.m ###############################################
+% Programm: 		    	passiveScalarTranport2D
+% Content:					define simulation params
+% Author:                   S.H. Tey, June 2024
+% Email:                    sheu.tey@stud.uni-due.de
+% Matriculation Number:     3117568
+% -------------------------------------------------------
+% define simulation params such as CFL, Dx, Dt, tmax
+% =======================================================
+
+% #######################################################
+% ------- parameters: run setup -------------------------
+global CFL Delta DeltaT D 
+Delta = 1/Ima                                           ;
+CFL =       0.1                                         ;
