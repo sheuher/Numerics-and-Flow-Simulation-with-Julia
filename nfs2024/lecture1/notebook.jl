@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.19.42
 
 using Markdown
 using InteractiveUtils
@@ -106,7 +106,10 @@ begin
 end
 
 # ╔═╡ 114b2f8d-0a22-474a-a31a-490f190af726
-step = @bind step Slider(0:10:1000, default=100)
+step = @bind step Slider(0:1:1000, default=100)
+
+# ╔═╡ 35a3d9a6-caaa-4d9d-97c6-c1c62b0c3755
+
 
 # ╔═╡ f7a4179f-68f3-4ab8-82d2-47902a8b41d1
 begin
@@ -202,6 +205,7 @@ end
 # ╠═be497665-e424-45e7-9687-d16f10699be5
 # ╠═f41b62c7-3248-4a2a-a6be-6d8dca267ca8
 # ╠═114b2f8d-0a22-474a-a31a-490f190af726
+# ╠═35a3d9a6-caaa-4d9d-97c6-c1c62b0c3755
 # ╠═f7a4179f-68f3-4ab8-82d2-47902a8b41d1
 # ╠═0d38312d-49d4-4fc6-a38e-3c71379ad6cf
 # ╠═380c415f-afe4-4d9b-a711-402fc8eddc6e

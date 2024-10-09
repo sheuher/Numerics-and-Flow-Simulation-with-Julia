@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.19.42
 
 using Markdown
 using InteractiveUtils
@@ -21,11 +21,22 @@ let
 	scatter(X,Y, label="Y")
 	scatter!(Xmid, Ymid, label="Ymid")
 
-	Xf = 0:0.1:10
-	Yf = let X=Xf
-	@. 3X^3 + 2X^2 + X
+	delta = 0.1
+	Xf = 0:delta:10
+	dX = 0:delta:1
+	Yfine = similar(Xf)
+	j = 0
+ 	for i in 1:length(X)-1
+		for d in 1:length(dX)
+			Yfine[d + (i-1)*10] = dX[d]/delta *Y[i+1] + (delta-dX[d])/delta *Y[i]
+		end
 	end
-	scatter!(Xf, Yf, alpha=0.1, label="Yfine")
+
+	
+	#scatter!(Xf, Yfine, alpha=0.1, label="Yfine")
+	scatter(Xf, Yfine)
+	scatter!(X,Y)
+	scatter!(Xmid,Ymid)
 end
 
 
@@ -102,8 +113,8 @@ let
 	N = 10  	# resolution
 	dx = 1.
 	dy = 1.
-	x  = LinRange(0, 1, N +2)[2:end-1]
-	y  = LinRange(0, 1, N +2)[2:end-1]
+	x  = LinRange(0, 1, N )
+	y  = LinRange(0, 1, N )
 
 	phi = Matrix{Float64}(undef, N,N)
 
@@ -112,7 +123,7 @@ let
 			phi[i,j] = bilinearInterpolation(phiNW, phiNE, phiSE, phiSW, x[i], y[j], dx, dy)
 		end
 	end
-
+	plotly()
 	surface(phi)
 
 	# test function the x, y , must be linear, but how to test that
@@ -132,6 +143,7 @@ end
 # with periodic BC treatments
 
 let
+
 	N = 100
 	nG = 1
 	fim = 1

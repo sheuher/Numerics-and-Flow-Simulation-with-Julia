@@ -187,6 +187,9 @@ end
 # ╔═╡ a88e86af-8a0f-4332-8ddb-2a8d09c3d6e2
 step = @bind step Slider(0:1:2000, default=200)
 
+# ╔═╡ 1b2e91cb-8ac2-41ad-bad0-b32e32bd1d24
+
+
 # ╔═╡ 6c803a5c-6ed3-476e-8755-9f7f271eeb56
 function step!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVector, DeltaT::Float64, DeltaX::Float64, D::Float64, nG::Int64)
 
@@ -244,6 +247,36 @@ function stepUDS!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVector
 	return nothing
 end
 
+# ╔═╡ 970093cc-9c52-4ad7-9d60-1bbfc64f29cc
+function stepDDS!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVector, DeltaT::Float64, DeltaX::Float64, D::Float64, nG::Int64)
+
+	ImaAll = length(phiNew)
+	Ifi = nG+1; Ifim = Ifi-1; Ifip = Ifi+1
+	Ila = ImaAll -nG; Ilap = Ila+1; Ilam = Ila-1
+
+	phiC = @view phi[Ifi:Ila]
+	phiE = @view phi[Ifip:Ilap]
+	phiW = @view phi[Ifim:Ilam]
+	
+	ux = similar(u); Fe = similar(phi); Fw = similar(phi)
+	ux[Ifim:Ila] = 0.5 * ( u[Ifi:Ilap] + u[Ifim:Ila] )
+
+	ue = @view ux[Ifi:Ila]
+	uw = @view ux[Ifim:Ilam]
+	
+	Fe = phiC .*ue .*(ue .< 0) + phiE .*ue .*(ue .>= 0)
+	Fw = phiW .*uw .*(uw .< 0) + phiC .*uw .*(uw .>= 0)
+	Fc = 1 /DeltaX * (Fe - Fw)
+	
+	#Fc = 0.5/DeltaX * (phiE .* u[Ifi+1:Ilap] .- phiW .* u[Ifim:Ila-1]) #CDS debug
+	
+	phiNew[Ifi:Ila] = phi[Ifi:Ila] .+ DeltaT * begin
+		-Fc + ( D/DeltaX^2 * (phiE -2*phiC + phiW) )
+	end
+	
+	return nothing
+end
+
 # ╔═╡ 46552ff0-ad52-4060-aa1e-0daa0a094b66
 function stepUSCDS!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVector, DeltaT::Float64, DeltaX::Float64, D::Float64, nG::Int64)
 
@@ -263,7 +296,7 @@ function stepUSCDS!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVect
 	
 	Fe = (1 .+ ue*DeltaT/DeltaX) .*phiC .+ (1 .- ue*DeltaT/DeltaX) .*phiE
 	Fw = (1 .+ uw*DeltaT/DeltaX) .*phiW .+ (1 .- uw*DeltaT/DeltaX) .*phiC
-	Fc = 0.5 /DeltaX * (Fe - Fw)
+	Fc = 0.5 /DeltaX * (Fe - Fw) .* ue
 	
 	#Fc = 0.5/DeltaX * (phiE .* u[Ifi+1:Ilap] .- phiW .* u[Ifim:Ila-1]) #CDS debug
 	
@@ -272,6 +305,46 @@ function stepUSCDS!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVect
 	end
 	
 	return nothing
+end
+
+# ╔═╡ 2f51bd01-0518-45f0-8143-e6d2ceb8cbca
+# 2. Scalar transport in 1D
+
+let
+	U = 1.; CFL = 0.25; D = 1e-5
+	x = 1.
+	
+	Ima = 20; nG = 1
+	Ifim = 1; Ifi = nG +1; 
+	Ila = Ima +nG; Ilap = Ila + 1
+	
+	u 	= Vector{Float64}(undef, Ilap)
+	phi	= similar(u)
+	u 	.= U
+
+	println("x = $x, U = $U, CFL = $(CFL), D = $(D)")
+	println("Ima = $(Ima)")#, Ifim=$(Ifim), Ifi=$(Ifi), Ila=$(Ila), Ilap=$(Ilap)")
+
+	DeltaX = x / Ima
+	DeltaT = CFL *DeltaX /U
+	println("DeltaT = $(DeltaT)")
+	println("tStep = $(step)")
+	
+	phi[Ifi:Ila] .= LinRange(DeltaX/2,x - DeltaX/2,Ima) .|> t->sin(2π*t)
+	
+	applyPeriodicBC!(phi, nG)
+
+	phiNew = similar(phi)
+
+	plot(LinRange(0,x,Ima), phi[Ifi:Ila], legend=nothing, ylims=(-1.2, 1.2), xlims=(0,x), title="time = $(step*DeltaT)s")
+	for _ in 1:step
+		stepUSCDS!(phiNew, phi, u, DeltaT, DeltaX, D, nG)
+		applyPeriodicBC!(phiNew, nG)
+		phi = phiNew
+		#plot!(LinRange(0,x,Ima), phiNew[Ifi:Ila])
+	end
+	plot!(LinRange(0,x,Ima), phiNew[Ifi:Ila])
+	plot!()
 end
 
 # ╔═╡ f36b351a-2287-40c9-8b46-9a8f56c908f2
@@ -305,46 +378,6 @@ function stepTVD!(phiNew::AbstractVector, phi::AbstractVector, u::AbstractVector
 	return nothing
 end
 
-# ╔═╡ 2f51bd01-0518-45f0-8143-e6d2ceb8cbca
-# 2. Scalar transport in 1D
-
-let
-	U = 1.; CFL = 0.25; D = 1e-5
-	x = 1.
-	
-	Ima = 100; nG = 1
-	Ifim = 1; Ifi = nG +1; 
-	Ila = Ima +nG; Ilap = Ila + 1
-	
-	u 	= Vector{Float64}(undef, Ilap)
-	phi	= similar(u)
-	u 	.= U
-
-	println("x = $x, U = $U, CFL = $(CFL), D = $(D)")
-	println("Ima = $(Ima)")#, Ifim=$(Ifim), Ifi=$(Ifi), Ila=$(Ila), Ilap=$(Ilap)")
-
-	DeltaX = x / Ima
-	DeltaT = CFL *DeltaX /U
-	println("DeltaT = $(DeltaT)")
-	println("tStep = $(step)")
-	
-	phi[Ifi:Ila] .= LinRange(DeltaX/2,x - DeltaX/2,Ima) .|> t->sin(2π*t)
-	
-	applyPeriodicBC!(phi, nG)
-
-	phiNew = similar(phi)
-
-	plot(LinRange(0,x,Ima), phi[Ifi:Ila], legend=nothing, ylims=(-1.2, 1.2), xlims=(0,x), title="time = $(step*DeltaT)s")
-	for _ in 1:step
-		stepTVD!(phiNew, phi, u, DeltaT, DeltaX, D, nG)
-		applyPeriodicBC!(phiNew, nG)
-		phi = phiNew
-		#plot!(LinRange(0,x,Ima), phiNew[Ifi:Ila])
-	end
-	plot!(LinRange(0,x,Ima), phiNew[Ifi:Ila])
-	plot!()
-end
-
 # ╔═╡ Cell order:
 # ╠═7a635be6-ff7c-11ee-2cdd-afdcd8ccc93d
 # ╠═718f1af5-c5ea-4b78-b748-eae0c996cf97
@@ -359,8 +392,10 @@ end
 # ╠═cf557048-37a6-45a8-940a-7699802c0f29
 # ╟─a88e86af-8a0f-4332-8ddb-2a8d09c3d6e2
 # ╠═2f51bd01-0518-45f0-8143-e6d2ceb8cbca
+# ╠═1b2e91cb-8ac2-41ad-bad0-b32e32bd1d24
 # ╠═6c803a5c-6ed3-476e-8755-9f7f271eeb56
 # ╠═09fcf9e4-e6d4-432b-9f5e-0eb0d8474ce7
 # ╠═9773366c-4b37-4405-9768-708b03c93572
+# ╠═970093cc-9c52-4ad7-9d60-1bbfc64f29cc
 # ╠═46552ff0-ad52-4060-aa1e-0daa0a094b66
 # ╠═f36b351a-2287-40c9-8b46-9a8f56c908f2

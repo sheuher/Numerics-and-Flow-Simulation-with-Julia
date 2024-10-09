@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.19.42
 
 using Markdown
 using InteractiveUtils
@@ -119,19 +119,19 @@ end
 # ╔═╡ 0fce36c6-552e-4e83-a6e6-1cac9e478431
 function Center2Surface!(Ue::AbstractMatrix, Vn::AbstractMatrix, Uc::AbstractMatrix, Vc::AbstractMatrix, nG::Int64)
 
-	#ImaAll, JmaAll = size(Uc)
-	#Ifi = nG+1; Ifip = Ifi+1; Ifim = Ifi-1
-	#Ila = ImaAll - nG; Ilap = Ila+1; Ilam = Ila-1
-	#Ilapp = Ilap+1; Ifimm = Ifim-1
-	#Jfi = nG+1; Jfip = Jfi+1; Jfim = Jfi-1
-	#Jla = JmaAll - nG; Jlap = Jla+1; Jlam = Jla-1
-	#Jlapp = Jlap+1; Jfimm = Jfim-1
+	ImaAll, JmaAll = size(Uc)
+	Ifi = nG+1; Ifip = Ifi+1; Ifim = Ifi-1
+	Ila = ImaAll - nG; Ilap = Ila+1; Ilam = Ila-1
+	Ilapp = Ilap+1; Ifimm = Ifim-1
+	Jfi = nG+1; Jfip = Jfi+1; Jfim = Jfi-1
+	Jla = JmaAll - nG; Jlap = Jla+1; Jlam = Jla-1
+	Jlapp = Jlap+1; Jfimm = Jfim-1
 	
-	#Ue[Ifim:Ilap, Jfim:Jlap] = 0.5 *(Uc[Ifi:Ilapp, Jfim:Jlap] + Uc[Ifimm:Ila, Jfim:Jlap])
-	#Vn[Ifim:Ilap, Jfim:Jlap] = 0.5 *(Vc[Ifim:Jlap, Jfi:Jlapp] + Vc[Ifim:Jlap, Jfimm:Jla])
+	Ue[Ifim:Ila, Jfi:Jla] = 0.5 *(Uc[Ifi:Ilap, Jfi:Jla] + Uc[Ifim:Ila, Jfi:Jla])
+	Vn[Ifi:Ila, Jfim:Jla] = 0.5 *(Vc[Ifi:Ila, Jfi:Jlap] + Vc[Ifi:Ila, Jfim:Jla])
 
-	Ue[1:end-1, 2:end-1] .= 0.5 * (Uc[2:end, 2:end-1] + Uc[1:end-1, 2:end-1])
-	Vn[2:end-1, 1:end-1] .= 0.5 * (Vc[2:end-1, 2:end] + Vc[2:end-1, 1:end-1])
+	#Ue[1:end-1, 2:end-1] .= 0.5 * (Uc[2:end, 2:end-1] + Uc[1:end-1, 2:end-1])
+	#Vn[2:end-1, 1:end-1] .= 0.5 * (Vc[2:end-1, 2:end] + Vc[2:end-1, 1:end-1])
 
 	#Ue[end, :] .= Ue[1, :]
 	#Vn[:, end] .= Vc[:, 1]
@@ -153,10 +153,10 @@ function applyPeriodicBC!(Phi::AbstractMatrix, nG::Int64)
 	Phi[Ifim, Jfi:Jla] .= Phi[Ila, Jfi:Jla]
 	Phi[Ilap, Jfi:Jla] .= Phi[Ifi, Jfi:Jla]
 	
-	Phi[Ifi:Ila, Jfim-1] .= Phi[Ifi:Ila, Jfim]
-	Phi[Ifi:Ila, Jlap+1] .= Phi[Ifi:Ila, Jlap]
-	Phi[Ifim-1, Jfi:Jla] .= Phi[Ifim, Jfi:Jla]
-	Phi[Ilap+1, Jfi:Jla] .= Phi[Ilap, Jfi:Jla]
+	#Phi[Ifi:Ila, Jfim-1] .= Phi[Ifi:Ila, Jfim]
+	#Phi[Ifi:Ila, Jlap+1] .= Phi[Ifi:Ila, Jlap]
+	#Phi[Ifim-1, Jfi:Jla] .= Phi[Ifim, Jfi:Jla]
+	#Phi[Ilap+1, Jfi:Jla] .= Phi[Ilap, Jfi:Jla]
 	
 	return nothing
 end
@@ -176,7 +176,7 @@ function ConvFlux!(Fc::AbstractMatrix, Phie::AbstractMatrix, Phin::AbstractMatri
 	Phiee = @view Phie[Ifi:Ila, Jfi:Jla]; Phiew = @view Phie[Ifim:Ilam, Jfi:Jla]
 	Uee   = @view   Ue[Ifi:Ila, Jfi:Jla]; Uew   = @view   Ue[Ifim:Ilam, Jfi:Jla]
 	
-	Fc[Ifi:Ila, Jfi:Jla] = 1/delta * (
+	Fc[Ifi:Ila, Jfi:Jla] = 1 /delta * (
 
 		Phinn .*Vnn - Phins .*Vns + Phiee .*Uee - Phiew .*Uew
 		
@@ -277,7 +277,7 @@ function simulate!(PhiNew::AbstractMatrix, Fc::AbstractMatrix, Fd::AbstractMatri
 	T = 0.
 	while T < tMax
 		Center2Surface!(Phie, Phin, Phi, Phi, nG)
-		applyPeriodicBC!(Phie, nG); applyPeriodicBC!(Phin, nG)
+		#applyPeriodicBC!(Phie, nG); applyPeriodicBC!(Phin, nG)
 		ConvFlux!(Fc, Phie, Phin, Ue, Vn, delta, nG)
 		DiffFlux!(Fd, Phi, delta, D, nG)
 		step!(PhiNew, Phi, Fc, Fd, DeltaT, nG)
@@ -378,7 +378,7 @@ end
 # ╠═91b5eb92-01da-4d6a-9f30-7615d7dc8673
 # ╠═ecddc9e5-9523-48ba-afd3-394c27aaeb47
 # ╠═e9ca7658-82cb-4e9d-9fce-3edc6d1635aa
-# ╟─19468266-b1d8-457c-ac10-df9ec3a06b3a
+# ╠═19468266-b1d8-457c-ac10-df9ec3a06b3a
 # ╠═9be23c76-87f6-423f-a04b-719d5b4b036f
 # ╠═b01cec0b-bc64-4221-85b9-f257e879f229
 # ╠═d1f9e059-4020-4f74-a59f-343e9f30f125

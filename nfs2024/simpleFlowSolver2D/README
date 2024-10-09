@@ -1,0 +1,22 @@
+"""
+Simple flow solver in 2D
+▪ Extend your "passive scalar transport"
+program to also consider the transport
+of momentum in x- and y-direction
+▪ After you have advanced the solution
+in time, you need to do the pressure
+correction in addition for the
+momentum (divMom2D,
+poissonSolver2D, corrMom2D)
+▪ At the end of the time step, you need
+to update the velocity at the faces
+(mom2Vel)
+▪ Play with your program, try the effect
+of different parameters, discretisation
+schemes for convection, Reynolds
+numbers, grid resolutions, ...
+Keep this program for your reference in
+the future. If it works, you are one of the
+very few (non)-PhD students who ever
+wrote a flow solver!
+"""
