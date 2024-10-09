@@ -15,11 +15,11 @@ function [u, v] = mom2vel(u,v, rhou, rhov) % ############
 rho = 1;
 global Ifi Ifim Ila Ilap Jfi Jfim Jla Jlap
 % ------- preallocating and preindexing -----------------
-rhouE = rhou(Ifi:Ilap, Jfi:Jla);
-rhouW = rhou(Ifim:Ila, Jfi:Jla);
-rhovN = rhov(Ifi:Ila, Jfi:Jlap);
-rhovS = rhov(Ifi:Ila, Jfim:Jla);
+rhouE = rhou(Ifi:Ilap, :);
+rhouW = rhou(Ifim:Ila, :);
+rhovN = rhov(:, Jfi:Jlap);
+rhovS = rhov(:, Jfim:Jla);
 % ------- operation -------------------------------------
-u(Ifim:Ila, Jfi:Jla) = 1/rho *0.5 * (rhouE + rhouW);
-v(Ifi:Ila, Jfim:Jla) = 1/rho *0.5 * (rhovN + rhovS);
+u(Ifim:Ila, :) = 1/rho *0.5 * (rhouE + rhouW);
+v(:, Jfim:Jla) = 1/rho *0.5 * (rhovN + rhovS);
 end % ###################################################

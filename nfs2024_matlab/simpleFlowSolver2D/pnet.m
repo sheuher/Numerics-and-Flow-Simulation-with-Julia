@@ -16,8 +16,8 @@ global Ila Ilam Ilap Jfi Jfim Jfip
 global Jla Jlam Jlap
 global ImaAll JmaAll
 % ------- parameters: define grid -----------------------
-Ima =    20                                             ;
-Jma =    10                                             ;
+Ima =    25                                             ;
+Jma =    25                                            ;
 nG =     1                                              ;
 % ------- parameters: indexing for grid -----------------
 Ifi = nG +1;   Ifim = Ifi -1; Ifip = Ifi +1;

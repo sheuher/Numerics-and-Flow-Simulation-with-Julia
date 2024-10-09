@@ -60,7 +60,7 @@ I = 0;
 % ------- applyBCs 
 Phi = applyBC(Phi); Ue = applyBC(Ue); Vn = applyBC(Vn);
 % ------- save 
-saveDat(Phi, 'Phi000000');
+saveDat(Phi, 'Phi0');
 % ------- log 
 fprintf("SIMULATION STARTED")
 % ------- whileloop 
@@ -77,12 +77,16 @@ while( t<tMax && I<=nTMax )
     fprintf("I = %d, t = %.04f s\n", I, t)
     % ------- if I % saveNT == 0: save 
     if(mod(I, saveNT) == 0)
+        saveDat(Phi, sprintf('Phi%i', I))
+        %surf(Phi); zlim([-1,1]); colormap gray; 
+        %shading faceted;
         heatmap(Phi, 'Colormap', gray, 'ColorLimits', ...
-            [-1.5 1.5])
-        grid off
+            [-1.2 1.2])
+        %
+         grid off
         % axis normal
         drawnow
-        saveDat(Phi, sprintf('Phi%i', I))
+        
     end
 % ------- log 
 end

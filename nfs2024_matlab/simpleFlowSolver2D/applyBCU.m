@@ -16,7 +16,7 @@ global Ifi Ifim Ila Ilap Jfi Jfim Jla Jlap
 % ------- operattions -----------------------------------
 % Dirichlet on all sides
 Phi(Ifim, Jfi:Jla) = 0;
-Phi(Ila+1, Jfi:Jla) = 0;
+Phi(Ilap, Jfi:Jla) = 0;
 Phi(Ifi:Ila, Jfim) = 0;
 Phi(Ifi:Ila, Jlap) = 1;
 end % ###################################################

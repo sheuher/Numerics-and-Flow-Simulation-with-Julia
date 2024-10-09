@@ -1,4 +1,4 @@
-% # net.m ###############################################
+% # calcFluxConUDS.m ####################################
 % Programm: 		    	passiveScalarTranport2D
 % Content:					convective fluxes clac CDS 
 % Author:                   S.H. Tey, June 2024
@@ -11,12 +11,12 @@
 %   - U(:,:) and V(:,:) are stored in face surfaces
 % =======================================================
 
-function [fluxConX, fluxConY] = calcFluxConCDS( ... 
+function [fluxConX, fluxConY] = calcFluxConTVD( ... 
     fluxConX,fluxConY, Phi, U, V) % #####################
 % ------- parameters ------------------------------------
 global Ifi Ifim Ifip Ila Ilam Ilap
 global Jfi Jfim Jfip Jla Jlam Jlap
-global Delta
+global Delta Ima Jma
 % ------- preallocating and preindexing -----------------
 PhiC = Phi(Ifi:Ila, Jfi:Jla);
 PhiE = Phi(Ifip:Ilap, Jfi:Jla);
@@ -28,9 +28,17 @@ Ue = U(Ifi:Ila, Jfi:Jla);
 Uw = U(Ifim:Ilam, Jfi:Jla);
 Vn = V(Ifi:Ila, Jfi:Jla);
 Vs = V(Ifi:Ila, Jfim:Jlam);
+
+r = zeros(Ima, Jma);
 % ------- operation -------------------------------------
-fluxConX(Ifi:Ila, Jfi:Jla) = 0.5 *Delta * ( ...
-    (PhiE +PhiC).*Ue - (PhiC +PhiW).*Uw );
-fluxConY(Ifi:Ila, Jfi:Jla) = 0.5 *Delta * ( ...
-    (PhiN +PhiC).*Vn - (PhiC +PhiS).*Vs );
-end % #############################################`######
+r = (PhiE - PhiC) ./(PhiC - PhiW);
+fluxConX(Ifi:Ila, Jfi:Jla) = Delta *( ...
+    (PhiC + B.(r) .*(PhiC - PhiW) .*Ue) - PhiW .* Uw);
+fluxConY(Ifi:Ila, Jfi:Jla) = ;
+end % ###################################################
+
+% ------- B function ------------------------------------
+function B = B(r) % #####################################
+B = r;
+end
+% #######################################################

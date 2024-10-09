@@ -13,13 +13,19 @@ pnet      % net gives us the familiar Ifi, Ila... indexes
 CASE      % CASE initiates all required field matrixes
 % ------- define params for execution of the calculation
 prun
+A = poissonKernel2D(A,[1,1,1,0]);
 % ------- test graphically momentum fields --------------
+%x = linspace(0-Delta,1+Delta,ImaAll); 
+%y = linspace(0-Delta,1+Delta,JmaAll);
+%[Y,X] = meshgrid(y,x);
 % quiver(X,Y,.,.,0.5)% comment out simulate below to test
 % heatmap(...)
-%surface(rhou(:,:,1))
+% rhou(:,:,1) = applyBCU(rhou(:,:,1));
+% heatmap(rhou(:,:,1))
 % ------- SIMULATE! -------------------------------------
-simulate(rhou,Ue,Vn, rhouP, divPred, p, ...
-    FcXX, FcXY, FcYX, FcYY, FdXX, FdXY, FdYX, FdYY);
+[rhou,Ue,Vn,rhouP,divPred,p]=simulate(rhou,Ue,Vn, ...
+    rhouP,divPred,p, ...
+    FcXX,FcXY,FcYX,FcYY,FdXX,FdXY,FdYX,FdYY,A,BCs);
 % #######################################################
 
 % #######################################################
@@ -50,8 +56,9 @@ simulate(rhou,Ue,Vn, rhouP, divPred, p, ...
     %  \_ mom2vel (rhouP) & corrVel2D (update Ue,Vn)
 % #######################################################
 
-function r = simulate(rhou,Ue,Vn, rhouP, divPred, p, ...
-    FcXX, FcXY, FcYX, FcYY, FdXX, FdXY, FdYX, FdYY)  % ##
+function [rhou,Ue,Vn,rhouP,divPred,p] = simulate(rhou, ...
+    Ue,Vn,rhouP,divPred,p, ...
+    FcXX, FcXY, FcYX, FcYY, FdXX, FdXY, FdYX, FdYY, A,BCs)
         % simulate 
         %  \_ applyBC x many
         %  \_ mom2vel calc U,V from RhoU,RhoV
@@ -68,40 +75,42 @@ function r = simulate(rhou,Ue,Vn, rhouP, divPred, p, ...
         %  \_ log end
 % ------- parameters ------------------------------------
 global DeltaT saveNT nTMax tMax
-global Ifi Ila Jfi Jla 
+global Ifi Ila Jfi Jla Delta ImaAll JmaAll
 t = 0.0;
 I = 0;
 % ------- SIMULATE! -------------------------------------
 % ------- applyBCs
 [rhou(:,:,1)] = applyBCU(rhou(:,:,1));
 [rhou(:,:,2)] = applyBCV(rhou(:,:,2));
-% ------- mom2vel 
-[Ue, Vn] = mom2vel(Ue, Vn, rhou(:,:,1), rhou(:,:,2));
+% Ue,Vn] = mom2vel(Ue,Vn,rhou(:,:,1),rhou(:,:,2));
 % ------- save initial field
 fprintf("SIMULATION STARTED\n")
+x = linspace(0-Delta,1+Delta,ImaAll); y = linspace(0-Delta,1+Delta,JmaAll);
+[Y,X] = meshgrid(y,x);
 while( t<tMax && I<=nTMax ) 
     % --- step, update momentum & face velocity
     [rhou,Ue,Vn,p,nIt,eps] = step(rhou,Ue,Vn,rhouP, ...
-        divPred,p,FcXX,FcXY,FcYX,FcYY,FdXX, FdXY, ...
-        FdYX, FdYY);
+        divPred,p,FcXX,FcXY,FcYX,FcYY,FdXX,FdXY, ...
+        FdYX, FdYY,A,BCs);
     t = t +DeltaT;
     I = I +1;
     fprintf("I = %d, t = %.04f s, ", I, t)
     fprintf("nJac = %d, eJac = %.03d\n", nIt, eps)
     if(mod(I, saveNT) == 0)
         %surface(p');
-        surface(rhou(:,:,1)');
-         % surface(p(:,:)');
+        contourf(X,Y,rhou(:,:,1));
+        colorbar
+        %heatmap(p(:,:)');
         %heatmap(p');
         %heatmap(rhou(Ifi:Ila,Jfi:Jla,1)', ...
         %    'Colormap', gray)
-        %quiver(rhou(:,:,1)', ...
-        %    rhou(:,:,2)')
+        %quiver(X, Y, rhou(:,:,1), ...
+        %    rhou(:,:,2))
         %disp(Ue)
-        colorbar('southoutside')
-        grid off
-        axis equal
-        xlabel('i'); ylabel('j');
+        %colorbar('southoutside')
+        %grid off
+        %axis equal
+        %xlabel('i'); ylabel('j');
         drawnow
         % saveDat(Phi, sprintf('Phi%i', I))
     end

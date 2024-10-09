@@ -12,22 +12,22 @@
 rho  =  1                                               ;
 dims =  [ImaAll, JmaAll];
 % ------- parameters: mom & p fields initialization -----
-rhou = zeros(ImaAll, JmaAll, 2);
+rhou = zeros([dims 2]);
 rhou(:, :, 1) = 1;
-%rhou(Ifim, Jfi:Jla, 1) = - rhou(Ifi, Jfi:Jla, 1);
-%rhou(Ilap, Jfi:Jla, 1) = - rhou(Ila, Jfi:Jla, 1);
 p =     zeros(dims);
+BCs = [1,1,1,0];
 % ------- parameters: other fields initialization -------
 rhouP = zeros([dims 2]);
 divPred=zeros(dims);
 Ue =    zeros(dims);
 Vn =    zeros(dims);
-FcXX =   zeros(dims);
-FcYX =   zeros(dims);
-FdXX =   zeros(dims);
-FdYX =   zeros(dims);
-FcXY =   zeros(dims);
-FcYY =   zeros(dims);
-FdXY =   zeros(dims);
-FdYY =   zeros(dims);
+FcXX =  zeros(dims);
+FcYX =  zeros(dims);
+FdXX =  zeros(dims);
+FdYX =  zeros(dims);
+FcXY =  zeros(dims);
+FcYY =  zeros(dims);
+FdXY =  zeros(dims);
+FdYY =  zeros(dims);
+A    =  zeros(Ima*Jma, Ima*Jma);
 % #######################################################
